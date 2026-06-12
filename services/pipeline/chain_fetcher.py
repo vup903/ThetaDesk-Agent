@@ -4,12 +4,40 @@ Usage: python chain_fetcher.py [TICKER ...]   (defaults to config.UNIVERSE)
 """
 import datetime as dt
 import math
+import re
 import sys
 
+import httpx
 import yfinance as yf
 
 import config
 import db
+
+OCC_RE = re.compile(r"^([A-Z]+)(\d{6})([CP])(\d{8})$")
+
+
+def fetch_cboe_chain(ticker, snapshot_ts, today):
+    """Fallback chain source: CBOE delayed quotes (free CDN, no key).
+    Used when Yahoo rate-limits the deploy host's IP."""
+    j = httpx.get(
+        f"https://cdn.cboe.com/api/global/delayed_quotes/options/{ticker}.json",
+        timeout=30).json()
+    spot = float(j["data"]["current_price"])
+    rows = []
+    for o in j["data"].get("options", []):
+        m = OCC_RE.match((o.get("option") or "").replace(" ", ""))
+        if not m or m.group(1) != ticker:
+            continue
+        d = m.group(2)
+        expiry = dt.date(2000 + int(d[:2]), int(d[2:4]), int(d[4:6]))
+        if not (config.MIN_DTE <= (expiry - today).days <= config.MAX_DTE):
+            continue
+        rows.append((snapshot_ts, ticker, expiry, int(m.group(4)) / 1000.0,
+                     "csp" if m.group(3) == "P" else "cc",
+                     float(o.get("bid") or 0), float(o.get("ask") or 0),
+                     float(o.get("iv") or 0), int(o.get("open_interest") or 0),
+                     int(o.get("volume") or 0), spot))
+    return rows
 
 
 def in_dte_window(expiry_str, today):
@@ -71,9 +99,19 @@ def run(universe=None):
             ch.insert("earnings", [earn], column_names=["ticker", "next_earnings", "snapshot_ts"])
             ok.append(ticker)
             print(f"  {ticker}: {len(chain_rows)} contracts, {len(price_rows)} price rows, earnings={earn[1]}")
-        except Exception as e:  # demo rule: one bad ticker never kills the run
-            failed.append(ticker)
-            print(f"  {ticker}: FAILED ({e})")
+        except Exception as e:  # Yahoo blocked? fall back to CBOE delayed quotes
+            try:
+                chain_rows = fetch_cboe_chain(ticker, snapshot_ts, today)
+                if not chain_rows:
+                    raise RuntimeError("cboe returned no contracts in DTE window")
+                ch.insert("option_chain", chain_rows,
+                          column_names=["snapshot_ts", "ticker", "expiry", "strike", "side",
+                                        "bid", "ask", "iv", "oi", "volume", "spot"])
+                ok.append(ticker)
+                print(f"  {ticker}: {len(chain_rows)} contracts via CBOE fallback (yahoo: {e})")
+            except Exception as e2:  # demo rule: one bad ticker never kills the run
+                failed.append(ticker)
+                print(f"  {ticker}: FAILED (yahoo: {e} | cboe: {e2})")
 
     print(f"ingest done: {len(ok)} ok, {len(failed)} failed, snapshot {snapshot_ts}Z")
     return snapshot_ts, ok, failed
