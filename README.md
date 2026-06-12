@@ -20,6 +20,8 @@ a simulated trade. No human in the loop.
 | Pipeline API (healthz) | https://thetadesk-api-jpll.onrender.com/healthz |
 | Published brief on cited.md | https://cited.md/article/52408c9d-a9a4-43f1-992a-70f3f44d52f1 |
 
+![Theta Desk dashboard overview](docs/screenshots/dashboard-overview.png)
+
 *(Free-tier services cold-start in ~60s — hit healthz first.)*
 
 ## Architecture
