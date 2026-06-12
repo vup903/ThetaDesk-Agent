@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "run.schema.json",
+  "title": "Run",
+  "description": "One end-to-end scan run. Stage statuses drive the dashboard's live animation.",
+  "type": "object",
+  "required": ["run_id", "started_at", "mode", "status", "stages"],
+  "properties": {
+    "run_id": { "type": "string" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "mode": { "type": "string", "enum": ["live", "replay"] },
+    "status": { "type": "string", "enum": ["running", "done", "failed"] },
+    "stages": {
+      "type": "object",
+      "description": "per-stage status; dashboard renders these as the pipeline animation",
+      "required": ["ingest", "screen", "analyze", "publish"],
+      "properties": {
+        "ingest": { "$ref": "#/$defs/stage" },
+        "screen": { "$ref": "#/$defs/stage" },
+        "analyze": { "$ref": "#/$defs/stage" },
+        "publish": { "$ref": "#/$defs/stage" }
+      }
+    },
+    "universe_size": { "type": "integer", "description": "tickers scanned" },
+    "brief_url": { "type": ["string", "null"] }
+  },
+  "$defs": {
+    "stage": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": { "type": "string", "enum": ["pending", "running", "done", "failed"] },
+        "detail": { "type": "string", "description": "human-readable progress line, e.g. '34/50 chains fetched'" }
+      }
+    }
+  }
+}

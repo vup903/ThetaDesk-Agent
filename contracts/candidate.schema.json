@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "candidate.schema.json",
+  "title": "Candidate",
+  "description": "One screened wheel-strategy candidate (cash-secured put). Single source of truth for pipeline API and dashboard.",
+  "type": "object",
+  "required": ["run_id", "ticker", "expiry", "strike", "side", "bid", "spot", "premium_yield_ann", "iv", "iv_pct", "open_interest", "earnings_ok", "score"],
+  "properties": {
+    "run_id": { "type": "string" },
+    "ticker": { "type": "string", "examples": ["AAPL"] },
+    "expiry": { "type": "string", "format": "date" },
+    "strike": { "type": "number" },
+    "side": { "type": "string", "enum": ["csp", "cc"], "description": "cash-secured put | covered call" },
+    "bid": { "type": "number", "description": "premium received per share" },
+    "spot": { "type": "number" },
+    "premium_yield_ann": { "type": "number", "description": "annualized premium / collateral, e.g. 0.18 = 18%" },
+    "iv": { "type": "number" },
+    "iv_pct": { "type": "number", "minimum": 0, "maximum": 1, "description": "IV percentile vs 1y history" },
+    "delta_est": { "type": ["number", "null"] },
+    "open_interest": { "type": "integer" },
+    "earnings_ok": { "type": "boolean", "description": "true = no earnings before expiry" },
+    "next_earnings": { "type": ["string", "null"], "format": "date" },
+    "score": { "type": "number", "description": "composite rank score, higher is better" }
+  }
+}

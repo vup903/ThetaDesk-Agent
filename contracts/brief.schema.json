@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "brief.schema.json",
+  "title": "Brief",
+  "description": "The published daily action sheet: top candidates + Claude's cited risk analyses + cited.md publication metadata.",
+  "type": "object",
+  "required": ["run_id", "date", "title", "candidates", "analyses", "status"],
+  "properties": {
+    "run_id": { "type": "string" },
+    "date": { "type": "string", "format": "date" },
+    "title": { "type": "string" },
+    "summary": { "type": "string", "description": "free teaser shown outside the paywall" },
+    "candidates": { "type": "array", "items": { "$ref": "candidate.schema.json" } },
+    "analyses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ticker", "analysis", "citations"],
+        "properties": {
+          "ticker": { "type": "string" },
+          "analysis": { "type": "string", "description": "Claude-written risk narrative (markdown)" },
+          "citations": { "type": "array", "items": { "type": "string", "format": "uri" } }
+        }
+      }
+    },
+    "status": { "type": "string", "enum": ["draft", "published", "failed"] },
+    "cited_url": { "type": ["string", "null"], "format": "uri" },
+    "price_usd": { "type": "number", "default": 0.01, "description": "x402 unlock price" }
+  }
+}
