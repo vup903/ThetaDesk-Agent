@@ -13,6 +13,7 @@ services/pipeline/.cache/
 services/pipeline/.venv-source-file/
 
 # Internal docs — not for judges
+docs/DEMO.md
 docs/DEMO_SCRIPT.md
 docs/DEPLOY_ISSUES.md
 docs/agent-tasks/
