@@ -10,6 +10,7 @@ import datetime as dt
 import httpx
 
 import config
+import db
 
 SENSO_BASE = "https://apiv2.senso.ai/api/v1"
 SHEET_FOLDER_ID = "bdf8f2f0-66c5-41eb-af1a-34acae340c6a"  # products-and-services
@@ -62,6 +63,21 @@ def publish(run_id, candidates, analyses):
 
     sheet = {"run_id": run_id, "date": date_str, "title": title, "summary": summary,
              "markdown": md, "status": "draft", "cited_url": None, "price_usd": 0.01}
+
+    # Idempotent per day: if today's sheet is already live on cited.md, reuse
+    # that URL instead of minting a near-duplicate article on every run.
+    try:
+        rows = db.client().query(
+            "SELECT brief_url FROM runs "
+            "WHERE brief_url != '' AND toDate(started_at) = today() "
+            "ORDER BY started_at DESC LIMIT 1").result_rows
+        if rows:
+            sheet.update(status="published", cited_url=rows[0][0])
+            print(f"  publish: already live today, reusing {rows[0][0]}")
+            return sheet
+    except Exception as e:
+        print(f"  publish: dedup check failed ({e}); publishing fresh")
+
     try:
         senso_post("/org/kb/raw", {"title": title, "text": md + FOOTER,
                                    "kb_folder_node_id": SHEET_FOLDER_ID})
