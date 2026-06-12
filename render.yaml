@@ -1,0 +1,46 @@
+services:
+  # Pipeline API: ingest -> screen -> analyze -> publish + x402 paywall
+  - type: web
+    name: thetadesk-api
+    runtime: python
+    rootDir: services/pipeline
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+    plan: starter
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: CLICKHOUSE_HOST
+        sync: false
+      - key: CLICKHOUSE_USER
+        sync: false
+      - key: CLICKHOUSE_PASSWORD
+        sync: false
+      - key: SENSO_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+  # OpenUI dashboard (the demo face)
+  - type: web
+    name: thetadesk-agent
+    runtime: node
+    rootDir: apps/dashboard
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    plan: starter
+    autoDeploy: true
+    envVars:
+      - key: NEXT_PUBLIC_API_BASE
+        value: https://thetadesk-api.onrender.com
+
+  # Daily autonomous trigger: weekdays 13:45 UTC (9:45am ET, after the open)
+  - type: cron
+    name: thetadesk-daily-scan
+    runtime: python
+    rootDir: services/pipeline
+    schedule: "45 13 * * 1-5"
+    buildCommand: pip install httpx
+    startCommand: python -c "import httpx; print(httpx.post('https://thetadesk-api.onrender.com/runs?mode=live', timeout=120).json())"
+    plan: starter
