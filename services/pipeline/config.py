@@ -25,6 +25,12 @@ UNIVERSE = [t.strip() for t in os.getenv(
     "UNIVERSE", "AAPL,MSFT,NVDA,AMD,TSLA,GOOGL,AMZN,META,PLTR,SOFI"
 ).split(",") if t.strip()]
 
+# cost fuses — keep a public demo endpoint from burning API credits
+RUNS_PER_HOUR = int(os.getenv("RUNS_PER_HOUR", "6"))
+RUNS_PER_DAY = int(os.getenv("RUNS_PER_DAY", "20"))
+CLAUDE_DAILY_CALL_BUDGET = int(os.getenv("CLAUDE_DAILY_CALL_BUDGET", "40"))
+REPLAY_PACE_SECS = float(os.getenv("REPLAY_PACE_SECS", "4"))
+
 # screener gates
 MIN_DTE, MAX_DTE = 14, 45          # days to expiry window
 MONEYNESS_LO, MONEYNESS_HI = 0.85, 0.97   # strike/spot band for CSPs

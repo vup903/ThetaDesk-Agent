@@ -6,7 +6,9 @@ Run: uvicorn api:app --port 8000
 import datetime as dt
 import json
 import threading
+import time
 import uuid
+from collections import deque
 
 from fastapi import FastAPI, Header, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -52,6 +54,20 @@ def _start_scheduler():
 # in-memory state of the current/last run (single-process demo server)
 STATE = {"run": None, "candidates": [], "sheet": None}
 LOCK = threading.Lock()
+
+# Cost fuse: rate-limit the public run trigger (each fresh run can spend
+# Claude/Senso credits). The daily scheduler bypasses this on purpose.
+RUN_STARTS = deque(maxlen=200)
+
+
+def _rate_limited():
+    now = time.time()
+    last_hour = sum(1 for t in RUN_STARTS if now - t < 3600)
+    last_day = sum(1 for t in RUN_STARTS if now - t < 86400)
+    if last_hour >= config.RUNS_PER_HOUR or last_day >= config.RUNS_PER_DAY:
+        return True
+    RUN_STARTS.append(now)
+    return False
 
 
 def _new_run(mode):
@@ -108,18 +124,36 @@ def _orchestrate(run, mode):
         else:
             _stage(run, "ingest", "done", "replay: reusing last real snapshot")
 
+        # Cost fuse + demo pace: a replay after today's sheet exists reuses the
+        # briefs and the published article — zero Claude/Senso calls, ~15s run.
+        reuse = None
+        if mode == "replay":
+            with LOCK:
+                s = STATE["sheet"]
+                if s and s.get("date") == dt.date.today().isoformat() and s.get("analyses"):
+                    reuse = s
+
         _stage(run, "screen", "running", "ClickHouse factor screen...")
         run_id, cands = screener.run(run["run_id"])
         with LOCK:
             STATE["candidates"] = [_candidate_json(c, run_id) for c in cands]
         _stage(run, "screen", "done", f"{len(cands)} candidates pass 5 factor gates")
 
-        _stage(run, "analyze", "running", f"Claude writing top-{config.TOP_N_ANALYZE} risk briefs...")
-        analyses = analyst.analyze(cands)
-        _stage(run, "analyze", "done", f"{len(analyses)} cited briefs ready")
+        if reuse:
+            _stage(run, "analyze", "running", "replay: reloading today's cited briefs...")
+            time.sleep(config.REPLAY_PACE_SECS)
+            analyses = reuse["analyses"]
+            _stage(run, "analyze", "done", f"{len(analyses)} cited briefs ready (reused, 0 new Claude calls)")
+            _stage(run, "publish", "running", "replay: today's sheet already live on cited.md...")
+            time.sleep(config.REPLAY_PACE_SECS)
+            sheet = {**reuse}
+        else:
+            _stage(run, "analyze", "running", f"Claude writing top-{config.TOP_N_ANALYZE} risk briefs...")
+            analyses = analyst.analyze(cands)
+            _stage(run, "analyze", "done", f"{len(analyses)} cited briefs ready")
 
-        _stage(run, "publish", "running", "Senso -> cited.md + x402 paywall...")
-        sheet = publisher.publish(run["run_id"], cands, analyses)
+            _stage(run, "publish", "running", "Senso -> cited.md + x402 paywall...")
+            sheet = publisher.publish(run["run_id"], cands, analyses)
         sheet["candidates"] = STATE["candidates"]
         sheet["analyses"] = analyses
         with LOCK:
@@ -145,6 +179,8 @@ def start_run(mode: str = "live", x_run_key: str | None = Header(default=None)):
         current = STATE["run"]
         if current and current["status"] == "running":
             return current
+        if _rate_limited():
+            raise HTTPException(status_code=429, detail="run rate limit reached; try later")
     run = _new_run(mode if mode in ("live", "replay") else "live")
     with LOCK:
         STATE["run"] = run

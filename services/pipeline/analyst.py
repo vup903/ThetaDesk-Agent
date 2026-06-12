@@ -22,6 +22,20 @@ CITED_KB = [
     "https://cited.md/article/de4080bf-7fb1-47d0-b321-15fa8e6f097a",
 ]
 
+# Cost fuse: hard daily cap on Claude calls (public demo endpoint can trigger
+# runs); over budget -> deterministic fallback, never an error.
+_budget = {"date": None, "used": 0}
+
+
+def _claude_budget_ok():
+    today = dt.date.today()
+    if _budget["date"] != today:
+        _budget["date"], _budget["used"] = today, 0
+    if _budget["used"] >= config.CLAUDE_DAILY_CALL_BUDGET:
+        return False
+    _budget["used"] += 1
+    return True
+
 
 def _fallback(c):
     earn = ("No earnings report falls before expiry." if c["earnings_ok"]
@@ -72,6 +86,9 @@ def analyze(candidates, top_n=None):
                         + "; ".join(f"[{t['label']}] {t['headline']}" for t in tags)
                         + ". Weave the most relevant one into the risk assessment.")
         text = None
+        if client is not None and not _claude_budget_ok():
+            print(f"  analyst: daily Claude budget ({config.CLAUDE_DAILY_CALL_BUDGET}) spent; using fallback")
+            client = None
         if client is not None:
             try:
                 msg = client.messages.create(
