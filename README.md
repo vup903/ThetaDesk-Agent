@@ -99,7 +99,7 @@ curl -s -X POST localhost:8000/consumer/buy       # bot pays $0.01, unlocks, que
 ## Harness engineering — how the agent is kept honest
 
 This is the Context Engineering Challenge, so the scaffolding *is* the product.
-Five techniques, all in the code:
+Six techniques, all in the code:
 
 1. **Contracts as agent boundaries.** Every cross-module payload is a JSON
    Schema in [contracts/](contracts/) — the single source of truth. The
@@ -125,6 +125,11 @@ Five techniques, all in the code:
    grounded against a 12-doc Senso knowledge base, and publish as
    agent-citable cited.md articles — the agent's output becomes other
    agents' context, with provenance attached.
+6. **Cost fuses.** The public demo endpoint is rate-limited (6 runs/hour,
+   20/day) and Claude calls sit behind a daily budget — over it, briefs
+   degrade to deterministic templates instead of failing. Fast-replay reuses
+   the day's brief from memory (0 tokens), so strangers hammering the demo
+   can't burn the agent's wallet.
 
 ## Layout
 

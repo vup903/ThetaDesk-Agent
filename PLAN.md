@@ -43,7 +43,7 @@ Anthropic、Render(`RENDER_API_KEY`)、Pioneer。
 
 ## 4. 你的任務清單(按優先序)
 
-### T1 — push + 盯 Render 部署(最急)
+### T1 ✅(已完成)— push + 盯 Render 部署(最急)
 ```
 git push origin main
 ```
@@ -60,7 +60,7 @@ Authorization: Bearer $RENDER_API_KEY
   - 儀表板開得起來、`POST .../runs?mode=replay` 後動畫會跑完四階段
   - 注意 free 方案冷啟動約 1 分鐘,demo 前要先「暖機」(先打一次 healthz)
 
-### T2 — `docs/DEMO_SCRIPT.md`(3 分鐘逐秒腳本)
+### T2 ✅(已完成)— `docs/DEMO_SCRIPT.md`(3 分鐘逐秒腳本)
 節拍(已定,把它寫成可照唸的講稿,中英都可):
 1. 0:00 Hook:「選擇權研究員每天 2 小時的功課,這個 agent 90 秒做完,只賣 1 美分——而且買家可以是另一個機器人。」
 2. 0:20 按 Run Daily Scan(replay 模式)→ 四階段管線動畫(Ingest→Screen→Analyze→Publish)
@@ -69,12 +69,12 @@ Authorization: Bearer $RENDER_API_KEY
 5. 2:40 收尾:5+ 贊助商工具各司其職、Render 上全自治每日循環、「這就是 agent 經濟」
 務必含:備援方案(網路掛了→本地 mock 模式照演)、每一步點哪裡的操作註記。
 
-### T3 — README.md 升級(評審第一眼)
+### T3 ✅(已完成)— README.md 升級(評審第一眼)
 加:架構圖(ASCII 即可)、3 個 live 連結(cited.md 文章、API healthz、儀表板)、
 贊助商使用表(每家「真的做了什麼」一句話)、60 秒 quickstart、
 disclaimer。語氣:量化、自信、不吹牛。
 
-### T4 — `docs/DEVPOST.md`(提交文案草稿)
+### T4 ✅(已完成)— `docs/DEVPOST.md`(提交文案草稿)
 Devpost 欄位:Inspiration / What it does / How we built it / Challenges /
 Accomplishments / What we learned / What's next。每段 3-5 句,
 強調:真資料、全自治、agent-pays-agent 閉環、5+ 贊助商深度整合。

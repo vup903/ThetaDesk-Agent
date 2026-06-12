@@ -50,7 +50,10 @@ Free market-data sources are hostile to autonomy — chains arrive with missing
 IVs and stale quotes, so the screener had to be defensive at every gate.
 Demo reliability shaped the architecture: we added a replay mode that re-runs
 the day's real snapshot (no live network dependency on stage) and a dashboard
-that degrades to mock data rather than ever showing an error. And coordinating
+that degrades to mock data rather than ever showing an error. Putting an LLM
+behind a public endpoint also meant building cost fuses: run rate limits, a
+daily Claude-call budget that degrades to deterministic briefs, and a
+fast-replay path that reuses the day's brief for zero tokens. And coordinating
 three AI workstreams in parallel without merge collisions required strict
 territory rules: contracts owned by one agent, everyone else builds inside
 them.
