@@ -65,7 +65,7 @@ export async function getLatestRun(): Promise<Run> {
 
 export async function getCandidates(): Promise<Candidate[]> {
   try {
-    return await requestJson<Candidate[]>("/candidates");
+    return await requestJson<Candidate[]>("/candidates/today");
   } catch {
     return fallback(() => getMockCandidates());
   }
@@ -81,10 +81,7 @@ export async function getLatestBrief(): Promise<Brief> {
 
 export async function startRun(mode: "live" | "replay"): Promise<Run> {
   try {
-    return await requestJson<Run>("/runs", {
-      method: "POST",
-      body: JSON.stringify({ mode })
-    });
+    return await requestJson<Run>(`/runs?mode=${encodeURIComponent(mode)}`, { method: "POST" });
   } catch {
     return fallback(() => mockRunController.start(mode));
   }
@@ -92,9 +89,13 @@ export async function startRun(mode: "live" | "replay"): Promise<Run> {
 
 export async function buySheet(): Promise<{ paid: boolean; tx: string; sheet: Brief }> {
   try {
-    return await requestJson<{ paid: boolean; tx: string; sheet: Brief }>("/briefs/today/buy", {
+    const purchase = await requestJson<{ paid: boolean; tx?: string; sheet?: Brief }>("/consumer/buy", {
       method: "POST"
     });
+    if (!purchase.paid || !purchase.tx || !purchase.sheet) {
+      throw new Error("Sheet not unlocked");
+    }
+    return { paid: purchase.paid, tx: purchase.tx, sheet: purchase.sheet };
   } catch {
     return fallback(() => getMockBuySheet());
   }

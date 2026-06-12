@@ -5,3 +5,5 @@ clickhouse-connect>=0.7
 anthropic>=0.40
 httpx>=0.27
 python-dotenv>=1.0
+airbyte>=0.47
+cffi>=2.0.0

@@ -13,6 +13,13 @@ CLICKHOUSE_PASSWORD = os.environ["CLICKHOUSE_PASSWORD"]
 SENSO_API_KEY = os.getenv("SENSO_API_KEY", "")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 PIONEER_API_KEY = os.getenv("PIONEER_API_KEY", "")
+RUN_API_KEY = os.getenv("RUN_API_KEY", "")
+CORS_ALLOWED_ORIGINS = [
+    origin.strip() for origin in os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        "https://thetadesk-agent.onrender.com,http://localhost:3000,http://127.0.0.1:3000",
+    ).split(",") if origin.strip()
+]
 
 UNIVERSE = [t.strip() for t in os.getenv(
     "UNIVERSE", "AAPL,MSFT,NVDA,AMD,TSLA,GOOGL,AMZN,META,PLTR,SOFI"

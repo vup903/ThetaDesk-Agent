@@ -16,7 +16,7 @@ type MockRunController = {
   subscribe: (listener: (run: Run) => void) => () => void;
 };
 
-const CITED_URL = "https://cited.md/theta-desk/2026-06-12-wheel-sheet";
+const CITED_URL = "https://cited.md/article/52408c9d-a9a4-43f1-992a-70f3f44d52f1";
 const TOTAL_DURATION_MS = 12_000;
 
 const stageTimeline: Array<{
@@ -25,7 +25,7 @@ const stageTimeline: Array<{
   detail: string;
 }> = [
   { key: "ingest", durationMs: 3_000, detail: "10/10 chains fetched" },
-  { key: "screen", durationMs: 2_000, detail: "8 candidates pass 5 factor gates" },
+  { key: "screen", durationMs: 2_000, detail: "10 candidates pass 5 factor gates" },
   { key: "analyze", durationMs: 4_000, detail: "Claude writing 5 risk briefs..." },
   { key: "publish", durationMs: 3_000, detail: "Live on cited.md - $0.01 paywall" }
 ];
@@ -48,186 +48,220 @@ const MOCK_RUN_ID = "theta-2026-06-12-demo";
 const baseCandidates: Candidate[] = [
   {
     run_id: MOCK_RUN_ID,
-    ticker: "NVDA",
-    expiry: "2026-07-17",
-    strike: 165,
+    ticker: "SOFI",
+    expiry: "2026-06-26",
+    strike: 16,
     side: "csp",
-    bid: 3.85,
-    spot: 178.2,
-    premium_yield_ann: 0.247,
-    iv: 0.52,
-    iv_pct: 0.81,
-    delta_est: -0.27,
-    open_interest: 14211,
+    bid: 0.47,
+    spot: 16.58,
+    premium_yield_ann: 0.7658,
+    iv: 0.5527,
+    iv_pct: 0.894,
+    delta_est: null,
+    open_interest: 3272,
     earnings_ok: true,
-    next_earnings: "2026-08-26",
-    score: 91.4
+    next_earnings: "2026-07-28",
+    score: 86.7
   },
   {
     run_id: MOCK_RUN_ID,
     ticker: "AMD",
-    expiry: "2026-07-17",
-    strike: 145,
+    expiry: "2026-06-26",
+    strike: 495,
     side: "csp",
-    bid: 3.1,
-    spot: 156.4,
-    premium_yield_ann: 0.221,
-    iv: 0.49,
-    iv_pct: 0.74,
-    delta_est: -0.3,
-    open_interest: 9834,
+    bid: 20.9,
+    spot: 511.57,
+    premium_yield_ann: 1.1008,
+    iv: 0.7166,
+    iv_pct: 0.87,
+    delta_est: null,
+    open_interest: 193,
     earnings_ok: true,
     next_earnings: "2026-08-04",
-    score: 87.8
-  },
-  {
-    run_id: MOCK_RUN_ID,
-    ticker: "PLTR",
-    expiry: "2026-07-17",
-    strike: 122,
-    side: "csp",
-    bid: 3.45,
-    spot: 134.6,
-    premium_yield_ann: 0.292,
-    iv: 0.58,
-    iv_pct: 0.88,
-    delta_est: -0.32,
-    open_interest: 18762,
-    earnings_ok: true,
-    next_earnings: "2026-08-03",
-    score: 85.9
-  },
-  {
-    run_id: MOCK_RUN_ID,
-    ticker: "MSFT",
-    expiry: "2026-07-17",
-    strike: 485,
-    side: "csp",
-    bid: 5.65,
-    spot: 511.8,
-    premium_yield_ann: 0.121,
-    iv: 0.25,
-    iv_pct: 0.42,
-    delta_est: -0.22,
-    open_interest: 6220,
-    earnings_ok: true,
-    next_earnings: "2026-07-28",
-    score: 82.6
-  },
-  {
-    run_id: MOCK_RUN_ID,
-    ticker: "AAPL",
-    expiry: "2026-07-17",
-    strike: 190,
-    side: "csp",
-    bid: 2.38,
-    spot: 202.3,
-    premium_yield_ann: 0.129,
-    iv: 0.28,
-    iv_pct: 0.47,
-    delta_est: -0.24,
-    open_interest: 11204,
-    earnings_ok: true,
-    next_earnings: "2026-07-30",
-    score: 80.2
-  },
-  {
-    run_id: MOCK_RUN_ID,
-    ticker: "META",
-    expiry: "2026-07-17",
-    strike: 665,
-    side: "csp",
-    bid: 10.4,
-    spot: 701.2,
-    premium_yield_ann: 0.162,
-    iv: 0.33,
-    iv_pct: 0.61,
-    delta_est: -0.25,
-    open_interest: 5488,
-    earnings_ok: false,
-    next_earnings: "2026-07-16",
-    score: 73.5
+    score: 85.8
   },
   {
     run_id: MOCK_RUN_ID,
     ticker: "TSLA",
-    expiry: "2026-07-17",
-    strike: 295,
+    expiry: "2026-06-26",
+    strike: 392.5,
     side: "csp",
-    bid: 7.85,
-    spot: 318.7,
-    premium_yield_ann: 0.274,
-    iv: 0.63,
-    iv_pct: 0.84,
-    delta_est: -0.34,
-    open_interest: 20118,
+    bid: 10.55,
+    spot: 406.43,
+    premium_yield_ann: 0.7008,
+    iv: 0.5172,
+    iv_pct: 1,
+    delta_est: null,
+    open_interest: 190,
     earnings_ok: true,
     next_earnings: "2026-07-22",
-    score: 72.1
+    score: 78.2
+  },
+  {
+    run_id: MOCK_RUN_ID,
+    ticker: "PLTR",
+    expiry: "2026-06-26",
+    strike: 124,
+    side: "csp",
+    bid: 2.78,
+    spot: 127.99,
+    premium_yield_ann: 0.5845,
+    iv: 0.4602,
+    iv_pct: 0.856,
+    delta_est: null,
+    open_interest: 493,
+    earnings_ok: true,
+    next_earnings: "2026-08-03",
+    score: 67.6
+  },
+  {
+    run_id: MOCK_RUN_ID,
+    ticker: "NVDA",
+    expiry: "2026-06-26",
+    strike: 197.5,
+    side: "csp",
+    bid: 3.1,
+    spot: 205.19,
+    premium_yield_ann: 0.4092,
+    iv: 0.3879,
+    iv_pct: 0.998,
+    delta_est: null,
+    open_interest: 430,
+    earnings_ok: true,
+    next_earnings: "2026-08-26",
+    score: 66.3
+  },
+  {
+    run_id: MOCK_RUN_ID,
+    ticker: "AMZN",
+    expiry: "2026-06-26",
+    strike: 230,
+    side: "csp",
+    bid: 2.84,
+    spot: 238.55,
+    premium_yield_ann: 0.3219,
+    iv: 0.3347,
+    iv_pct: 0.928,
+    delta_est: null,
+    open_interest: 1143,
+    earnings_ok: true,
+    next_earnings: "2026-07-30",
+    score: 59.2
+  },
+  {
+    run_id: MOCK_RUN_ID,
+    ticker: "META",
+    expiry: "2026-06-26",
+    strike: 545,
+    side: "csp",
+    bid: 6.55,
+    spot: 566.98,
+    premium_yield_ann: 0.3133,
+    iv: 0.3494,
+    iv_pct: 0.9001,
+    delta_est: null,
+    open_interest: 398,
+    earnings_ok: true,
+    next_earnings: "2026-07-29",
+    score: 50.6
+  },
+  {
+    run_id: MOCK_RUN_ID,
+    ticker: "MSFT",
+    expiry: "2026-06-26",
+    strike: 375,
+    side: "csp",
+    bid: 3.6,
+    spot: 390.74,
+    premium_yield_ann: 0.2503,
+    iv: 0.3176,
+    iv_pct: 0.94,
+    delta_est: null,
+    open_interest: 904,
+    earnings_ok: true,
+    next_earnings: "2026-07-29",
+    score: 46.9
   },
   {
     run_id: MOCK_RUN_ID,
     ticker: "GOOGL",
-    expiry: "2026-07-17",
-    strike: 175,
-    side: "cc",
-    bid: 2.1,
-    spot: 169.4,
-    premium_yield_ann: 0.143,
-    iv: 0.3,
-    iv_pct: 0.55,
-    delta_est: 0.26,
-    open_interest: 7036,
+    expiry: "2026-07-02",
+    strike: 345,
+    side: "csp",
+    bid: 4.3,
+    spot: 359.68,
+    premium_yield_ann: 0.2275,
+    iv: 0.3132,
+    iv_pct: 0.914,
+    delta_est: null,
+    open_interest: 1248,
     earnings_ok: true,
-    next_earnings: "2026-07-24",
-    score: 69.7
+    next_earnings: "2026-07-23",
+    score: 40.6
+  },
+  {
+    run_id: MOCK_RUN_ID,
+    ticker: "AAPL",
+    expiry: "2026-06-26",
+    strike: 280,
+    side: "csp",
+    bid: 1.73,
+    spot: 291.13,
+    premium_yield_ann: 0.1611,
+    iv: 0.2509,
+    iv_pct: 0.944,
+    delta_est: null,
+    open_interest: 1685,
+    earnings_ok: true,
+    next_earnings: "2026-07-30",
+    score: 36.4
   }
 ];
 
 const baseAnalyses: Brief["analyses"] = [
   {
-    ticker: "NVDA",
+    ticker: "SOFI",
     analysis:
-      "NVDA screens as the highest-quality cash-secured-put candidate because the $165 strike sits roughly 7.4% below spot while still paying 24.7% annualized. Open interest is deep enough for a one-lot demo order, and the post-expiry earnings date keeps event risk outside the holding window.",
+      "SOFI leads the current wheel sheet because the $16 put keeps collateral light while still paying 76.6% annualized over the 14-day window. IV sits near the 89th percentile, so the premium is rich relative to the stock's own trailing volatility. The main risk is assignment if fintech beta sells off with rates or broader risk sentiment.",
     citations: [
-      "https://www.nasdaq.com/market-activity/stocks/nvda/option-chain",
-      "https://www.sec.gov/ixviewer/doc/action?doc=/Archives/edgar/data/1045810/latest"
+      "https://www.nasdaq.com/market-activity/stocks/sofi/option-chain",
+      "https://investors.sofi.com/financials/sec-filings/default.aspx"
     ]
   },
   {
     ticker: "AMD",
     analysis:
-      "AMD offers a similar semiconductor volatility premium with less nominal collateral than mega-cap peers. The screen favors the $145 put because IV percentile is elevated without forcing the strike inside the expected move.",
+      "AMD is the high-yield alternative: the $495 put bids $20.90, or 110.1% annualized, but it requires $49,500 of cash-secured collateral per contract. The score stays just below SOFI because liquidity is thinner and the notional risk is larger. Earnings are outside the expiry window, so the main risk is assignment after a fast semiconductor reversal.",
     citations: [
       "https://www.nasdaq.com/market-activity/stocks/amd/option-chain",
       "https://ir.amd.com/financial-information/sec-filings"
     ]
   },
   {
+    ticker: "TSLA",
+    analysis:
+      "TSLA offers 70.1% annualized premium at the $392.50 strike, with IV at the top of its one-year range. The cushion is only a few percent below spot, so a single adverse session can turn the contract into assignment risk. Earnings are clear of expiry, but sentiment-driven moves around the Musk ecosystem remain the core hazard.",
+    citations: [
+      "https://www.nasdaq.com/market-activity/stocks/tsla/option-chain",
+      "https://ir.tesla.com/sec-filings"
+    ]
+  },
+  {
     ticker: "PLTR",
     analysis:
-      "PLTR has the richest annualized yield in the sheet, but the premium is compensation for a higher-beta name. Theta Desk keeps it below NVDA because the drawdown history and 0.88 IV percentile imply a wider risk band.",
+      "PLTR remains attractive on premium but carries headline and technical-risk sensitivity. The $124 put yields 58.5% annualized with IV in the upper part of its trailing range. The assignment case is less about earnings and more about whether a failed breakout keeps pressure on the stock before expiry.",
     citations: [
       "https://www.nasdaq.com/market-activity/stocks/pltr/option-chain",
       "https://investors.palantir.com/financials/sec-filings/default.aspx"
     ]
   },
   {
-    ticker: "MSFT",
+    ticker: "NVDA",
     analysis:
-      "MSFT is the defensive ballast in the list: lower premium, lower IV percentile, and stronger mega-cap liquidity. The $485 strike yields only 12.1% annualized, but it is attractive for accounts prioritizing assignment quality over headline yield.",
+      "NVDA's $197.50 put pays 40.9% annualized and keeps earnings outside this expiry, but open interest is modest and semiconductor beta can move quickly. IV is historically stretched, which is good for premium collection and also a warning that the market expects a wide range of outcomes. The trade is useful as a liquid mega-cap reference point, not the lowest-risk idea in the sheet.",
     citations: [
-      "https://www.nasdaq.com/market-activity/stocks/msft/option-chain",
-      "https://www.microsoft.com/en-us/investor/sec-filings.aspx"
-    ]
-  },
-  {
-    ticker: "AAPL",
-    analysis:
-      "AAPL passes the wheel screen on liquidity and assignment quality, with a muted 12.9% annualized premium. The setup is a lower-volatility reserve candidate rather than the primary trade for accounts seeking maximum income.",
-    citations: [
-      "https://www.nasdaq.com/market-activity/stocks/aapl/option-chain",
-      "https://investor.apple.com/sec-filings/default.aspx"
+      "https://www.nasdaq.com/market-activity/stocks/nvda/option-chain",
+      "https://www.sec.gov/ixviewer/doc/action?doc=/Archives/edgar/data/1045810/latest"
     ]
   }
 ];
@@ -351,7 +385,7 @@ export function getMockBrief(runId = mockRunController.getRun().run_id): Brief {
     date: "2026-06-12",
     title: "Theta Desk Daily Wheel Sheet - June 12, 2026",
     summary:
-      "Eight option-income candidates survived liquidity, yield, IV percentile, earnings, and assignment-quality gates. NVDA leads on risk-adjusted premium, while MSFT and AAPL provide lower-volatility alternates for conservative accounts.",
+      "Ten option-income candidates survived liquidity, yield, IV percentile, earnings, and assignment-quality gates. SOFI leads on risk-adjusted premium and low collateral, while AMD offers the sheet's highest annualized yield.",
     candidates: getMockCandidates(runId),
     analyses: baseAnalyses,
     status: "published",

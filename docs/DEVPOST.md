@@ -61,8 +61,9 @@ The loop is real end-to-end: real market data (4,015 contracts, 2,510 price
 rows in ClickHouse), a real published artifact (live on cited.md), a real
 402-then-pay flow, and a genuinely autonomous daily schedule on Render. Five
 sponsor tools each do load-bearing work — none is decorative. Today's top pick
-(AMD 495P, 110% annualized yield, 72nd IV percentile) came out of the live
-pipeline, not a fixture file.
+(SOFI 16P, 76.6% annualized yield, 89th IV percentile) came out of the live
+pipeline, not a fixture file; AMD 495P remained the high-yield runner-up at
+110.1% annualized.
 
 ## What we learned
 
@@ -90,5 +91,5 @@ through the full wheel cycle; and Langfuse tracing over the analyst calls.
 
 - Dashboard: https://thetadesk-agent.onrender.com
 - API: https://thetadesk-api-jpll.onrender.com/healthz
-- Published brief: https://cited.md/article/47e2fb3c-7ff0-4f1c-a3a2-c40673ee6e33
+- Published brief: https://cited.md/article/52408c9d-a9a4-43f1-992a-70f3f44d52f1
 - Repo: https://github.com/vup903/ThetaDesk-Agent

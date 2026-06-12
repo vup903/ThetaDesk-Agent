@@ -8,7 +8,7 @@ import json
 import threading
 import uuid
 
-from fastapi import FastAPI, Header, Response
+from fastapi import FastAPI, Header, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 import analyst
@@ -19,7 +19,12 @@ import publisher
 import screener
 
 app = FastAPI(title="Theta Desk Pipeline")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=config.CORS_ALLOWED_ORIGINS,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "X-Payment", "X-Run-Key"],
+)
 
 # Autonomy: in-process daily scheduler (13:45 UTC, weekdays) — no external cron needed.
 SCAN_UTC = (13, 45)
@@ -97,6 +102,8 @@ def _orchestrate(run, mode):
         if mode == "live":
             _stage(run, "ingest", "running", f"fetching {len(config.UNIVERSE)} chains...")
             ts, ok, failed = chain_fetcher.run()
+            if not ok:
+                raise RuntimeError("ingest failed for every ticker; refusing to publish stale data")
             _stage(run, "ingest", "done", f"{len(ok)}/{len(config.UNIVERSE)} chains @ {ts}Z")
         else:
             _stage(run, "ingest", "done", "replay: reusing last real snapshot")
@@ -131,7 +138,13 @@ def _orchestrate(run, mode):
 
 
 @app.post("/runs")
-def start_run(mode: str = "live"):
+def start_run(mode: str = "live", x_run_key: str | None = Header(default=None)):
+    if config.RUN_API_KEY and x_run_key != config.RUN_API_KEY:
+        raise HTTPException(status_code=403, detail="run trigger disabled")
+    with LOCK:
+        current = STATE["run"]
+        if current and current["status"] == "running":
+            return current
     run = _new_run(mode if mode in ("live", "replay") else "live")
     with LOCK:
         STATE["run"] = run
@@ -141,7 +154,9 @@ def start_run(mode: str = "live"):
 
 @app.get("/runs/latest")
 def latest_run():
-    return STATE["run"] or _new_run("live") | {"status": "idle"}
+    if not STATE["run"]:
+        return Response(json.dumps({"error": "no run yet"}), 404, media_type="application/json")
+    return STATE["run"]
 
 
 @app.get("/candidates/today")
@@ -155,6 +170,8 @@ def latest_brief():
         return Response(json.dumps({"status": "none"}), 404, media_type="application/json")
     locked = {**STATE["sheet"]}
     locked.pop("markdown", None)  # full sheet only via the paid endpoint
+    locked["candidates"] = []
+    locked["analyses"] = []
     return locked
 
 
@@ -184,7 +201,11 @@ def buy_brief(x_payment: str | None = Header(default=None)):
 def consumer_buy():
     """Wheeler the trading bot: hits the paywall, pays, unlocks, queues a trade."""
     if not STATE["sheet"]:
-        return {"paid": False, "log": ["GET /briefs/today -> 404 (no sheet published yet)"]}
+        return Response(
+            json.dumps({"paid": False, "log": ["GET /briefs/today -> 404 (no sheet published yet)"]}),
+            404,
+            media_type="application/json",
+        )
     sheet = STATE["sheet"]
     top = sheet["candidates"][0] if sheet["candidates"] else None
     tx = "0x" + uuid.uuid4().hex[:8] + "..." + uuid.uuid4().hex[:4]

@@ -275,7 +275,7 @@ export function DashboardClient() {
     setTableReady(false);
     setBriefReady(false);
 
-    const startedRun = await startRun("live");
+    const startedRun = await startRun("replay");
     setRun(startedRun);
     setMocking(isUsingMock());
   };
@@ -736,11 +736,27 @@ function ConsumerBotPanel({
     const purchase = await buySheet();
     const shortTx = `${purchase.tx.slice(0, 6)}...${purchase.tx.slice(-4)}`;
 
+    const selected = purchase.sheet.candidates.find((candidate) => candidate.strike * 100 <= 25_000)
+      ?? purchase.sheet.candidates[0];
+    const collateral = selected ? selected.strike * 100 : 0;
+    const withinLimit = Boolean(selected && collateral <= 25_000);
+    const sideSuffix = selected?.side === "cc" ? "C" : "P";
+    const contractLabel = selected
+      ? `${selected.ticker} $${selected.strike.toFixed(0)}${sideSuffix}`
+      : "action sheet";
+    const orderLine =
+      selected && withinLimit
+        ? `queued paper order: SELL 1x ${selected.ticker} ${selected.expiry} ${selected.strike.toFixed(0)}${sideSuffix} @ ${selected.bid.toFixed(2)}`
+        : "queued paper order: awaiting candidate";
+    const riskLine = withinLimit
+      ? `risk check: ${contractLabel} collateral $${collateral.toLocaleString("en-US")} \u2264 limit \u2713`
+      : `risk check: ${contractLabel} collateral $${collateral.toLocaleString("en-US")} > limit`;
+
     const scriptedLines = [
       `paying $0.01 via x402... tx ${shortTx} \u2713`,
       `sheet unlocked \u00b7 parsing ${purchase.sheet.candidates.length} candidates`,
-      "risk check: NVDA $165P collateral $16,500 \u2264 limit \u2713",
-      "queued paper order: SELL 1x NVDA 2026-07-17 165P @ 3.85"
+      riskLine,
+      orderLine
     ];
 
     for (const line of scriptedLines) {

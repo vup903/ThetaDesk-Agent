@@ -18,7 +18,7 @@ cited.md 掛 $0.01 x402 付費牆 → 交易機器人 Wheeler 付費購買並模
 | ClickHouse Cloud | ✅ 真資料 | 10 檔股票、4,015 合約、2,510 歷史價 |
 | 篩選引擎 | ✅ | `python services/pipeline/screener.py` 直接跑 |
 | Claude 分析 | ✅ | 5 篇簡報/run,有 fallback 文案保險絲 |
-| Senso → cited.md | ✅ 已上線 | https://cited.md/article/47e2fb3c-7ff0-4f1c-a3a2-c40673ee6e33 |
+| Senso → cited.md | ✅ 已上線 | https://cited.md/article/52408c9d-a9a4-43f1-992a-70f3f44d52f1 |
 | x402 付費牆 | ✅ | `GET /briefs/today` 無 header 回 402;`POST /consumer/buy` 模擬購買 |
 | 完整 API | ✅ 本地 | `uvicorn api:app --port 8000`(在 services/pipeline,用 ../../.venv)|
 | 儀表板 (Next.js+OpenUI) | ✅ build 過 | `apps/dashboard`,mock 優先設計,`npm run dev` 零依賴可跑 |
@@ -85,7 +85,8 @@ Accomplishments / What we learned / What's next。每段 3-5 句,
 ## 5. Demo 數字小抄(來自真實 run,寫進腳本用)
 
 - Universe:AAPL MSFT NVDA AMD TSLA GOOGL AMZN META PLTR SOFI(10 檔)
-- Top pick(2026-06-12 snapshot):AMD 2026-06-26 495P,bid $20.90,
-  年化權利金 110.1%,IV 百分位 72,score 80.5
-- Wheeler 購買 log:402 → pay $0.01 USDC → unlock → queue SELL 1x AMD 495P
+- Top pick(2026-06-12 snapshot):SOFI 2026-06-26 16P,bid $0.47,
+  年化權利金 76.6%,IV 百分位 89,score 86.7
+- High-yield runner-up:AMD 2026-06-26 495P,bid $20.90,年化權利金 110.1%
+- Wheeler 購買 log:402 → pay $0.01 USDC → unlock → queue SELL 1x SOFI 16P
 - 對比:傳統篩選器訂閱 $30–150/月 vs Theta Desk $0.01/份(≈$0.21/月)

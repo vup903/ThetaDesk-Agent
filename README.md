@@ -18,7 +18,7 @@ a simulated trade. No human in the loop.
 |---|---|
 | Dashboard | https://thetadesk-agent.onrender.com |
 | Pipeline API (healthz) | https://thetadesk-api-jpll.onrender.com/healthz |
-| Published brief on cited.md | https://cited.md/article/47e2fb3c-7ff0-4f1c-a3a2-c40673ee6e33 |
+| Published brief on cited.md | https://cited.md/article/52408c9d-a9a4-43f1-992a-70f3f44d52f1 |
 
 *(Free-tier services cold-start in ~60s — hit healthz first.)*
 
@@ -65,7 +65,8 @@ a simulated trade. No human in the loop.
 ```bash
 git clone https://github.com/vup903/ThetaDesk-Agent.git && cd ThetaDesk-Agent
 
-# backend (Python 3.11, keys in .env: CLICKHOUSE_*, SENSO_API_KEY, ANTHROPIC_API_KEY)
+# backend (Python 3.11, keys in .env:
+# CLICKHOUSE_*, SENSO_API_KEY, ANTHROPIC_API_KEY, optional ALPHAVANTAGE_API_KEY/PIONEER_API_KEY)
 cd services/pipeline
 pip install -r requirements.txt
 uvicorn api:app --port 8000
@@ -85,9 +86,10 @@ curl -s -X POST localhost:8000/consumer/buy       # bot pays $0.01, unlocks, que
 
 ## Why it's interesting
 
-- **Real data, real factors.** Today's top pick (2026-06-12): AMD 2026-06-26
-  495P — $20.90 bid, **110% annualized premium yield**, IV in its 72nd
-  percentile vs 1y, score 80.5. Computed from a live market snapshot.
+- **Real data, real factors.** Today's top pick (2026-06-12): SOFI 2026-06-26
+  16P — $0.47 bid, **76.6% annualized premium yield**, IV in its 89th
+  percentile vs 1y, score 86.7. AMD 495P is the high-yield runner-up at
+  110.1% annualized. Computed from a live market snapshot.
 - **Agent-pays-agent loop.** The research is priced for machine consumers:
   a subscription screener costs $30–150/mo; Theta Desk costs $0.01 per sheet
   (~$0.21/mo if a bot buys daily).
