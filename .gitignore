@@ -11,3 +11,10 @@ dist/
 services/pipeline/data/
 services/pipeline/.cache/
 services/pipeline/.venv-source-file/
+
+# Internal docs — not for judges
+docs/DEMO_SCRIPT.md
+docs/DEPLOY_ISSUES.md
+docs/agent-tasks/
+docs/codex-specs/
+docs/screenshots/QA_FINDINGS.md
