@@ -93,9 +93,36 @@ curl -s -X POST localhost:8000/consumer/buy       # bot pays $0.01, unlocks, que
   (~$0.21/mo if a bot buys daily).
 - **Fully autonomous.** Render-hosted, self-triggering, self-publishing. The
   demo button just replays what it already does every morning by itself.
-- **Contracts-first, agent-built.** Every cross-module payload is a JSON Schema
-  in [contracts/](contracts/); the pipeline and the dashboard were built by two
-  AI agents working in parallel against those contracts — they never collided.
+
+## Harness engineering — how the agent is kept honest
+
+This is the Context Engineering Challenge, so the scaffolding *is* the product.
+Five techniques, all in the code:
+
+1. **Contracts as agent boundaries.** Every cross-module payload is a JSON
+   Schema in [contracts/](contracts/) — the single source of truth. The
+   pipeline and the dashboard were built **by two AI agents working in
+   parallel** against those schemas (one owned `services/pipeline/`, the other
+   `apps/dashboard/`); they never touched each other's territory and never
+   collided. The handoff doc that coordinated them is [PLAN.md](PLAN.md).
+2. **Compute in SQL, narrate with the LLM.** Claude never sees raw market
+   data and is never asked to do math. ClickHouse computes every factor;
+   [analyst.py](services/pipeline/analyst.py) hands Claude a pre-digested
+   numeric snapshot with a system prompt that pins voice, structure, and
+   hard prohibitions (no position sizing, no return promises, mandatory
+   disclaimer). Smallest possible surface for hallucination.
+3. **Demo fuses at every layer.** Claude API down → deterministic template
+   brief ([analyst.py](services/pipeline/analyst.py)). Senso publish fails →
+   sheet degrades to local draft ([publisher.py](services/pipeline/publisher.py)).
+   API cold → dashboard auto-switches to SIM mode
+   ([api.ts](apps/dashboard/src/lib/api.ts)). The pipeline cannot die on stage.
+4. **Replay mode.** `POST /runs?mode=replay` re-runs the full pipeline on a
+   frozen *real* market snapshot with a compressed timeline — the uncontrollable
+   outside world turned into a deterministic fixture for demos and testing.
+5. **Grounded, citable output.** Briefs carry schema-required citations, are
+   grounded against a 12-doc Senso knowledge base, and publish as
+   agent-citable cited.md articles — the agent's output becomes other
+   agents' context, with provenance attached.
 
 ## Layout
 
