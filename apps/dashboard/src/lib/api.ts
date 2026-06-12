@@ -34,7 +34,7 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   const timeout = setTimeout(() => controller.abort(), 3_000);
 
   try {
-    const response = await fetch(`${API_BASE}${path}`, {
+    const response = await fetch(`/api/theta${path}`, {
       ...init,
       cache: "no-store",
       signal: controller.signal,

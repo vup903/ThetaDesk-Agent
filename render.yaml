@@ -33,14 +33,7 @@ services:
     autoDeploy: true
     envVars:
       - key: NEXT_PUBLIC_API_BASE
-        value: https://thetadesk-api.onrender.com
+        value: https://thetadesk-api-jpll.onrender.com
 
-  # Daily autonomous trigger: weekdays 13:45 UTC (9:45am ET, after the open)
-  - type: cron
-    name: thetadesk-daily-scan
-    runtime: python
-    rootDir: services/pipeline
-    schedule: "45 13 * * 1-5"
-    buildCommand: pip install httpx
-    startCommand: python -c "import httpx; print(httpx.post('https://thetadesk-api.onrender.com/runs?mode=live', timeout=120).json())"
-    plan: starter
+# Daily autonomous trigger runs in-process inside thetadesk-api
+# (scheduler thread, weekdays 13:45 UTC) — no separate cron service needed.

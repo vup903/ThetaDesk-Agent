@@ -21,6 +21,29 @@ import screener
 app = FastAPI(title="Theta Desk Pipeline")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
+# Autonomy: in-process daily scheduler (13:45 UTC, weekdays) — no external cron needed.
+SCAN_UTC = (13, 45)
+
+
+def _scheduler():
+    import time
+    last_day = None
+    while True:
+        now = dt.datetime.utcnow()
+        due = now.weekday() < 5 and (now.hour, now.minute) >= SCAN_UTC
+        if due and last_day != now.date() and (STATE["run"] is None or STATE["run"]["status"] != "running"):
+            last_day = now.date()
+            run = _new_run("live")
+            with LOCK:
+                STATE["run"] = run
+            threading.Thread(target=_orchestrate, args=(run, "live"), daemon=True).start()
+        time.sleep(30)
+
+
+@app.on_event("startup")
+def _start_scheduler():
+    threading.Thread(target=_scheduler, daemon=True).start()
+
 # in-memory state of the current/last run (single-process demo server)
 STATE = {"run": None, "candidates": [], "sheet": None}
 LOCK = threading.Lock()
