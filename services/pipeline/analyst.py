@@ -6,6 +6,7 @@ deterministic template analysis so the pipeline never dies on stage.
 import datetime as dt
 
 import config
+import pioneer_news
 
 SYSTEM = (
     "You are the research analyst at Theta Desk, an autonomous options-income "
@@ -64,6 +65,12 @@ def analyze(candidates, top_n=None):
 
     out = []
     for c in top:
+        tags = pioneer_news.get_news_tags(c["ticker"])
+        tag_note = ""
+        if tags:
+            tag_note = (" Recent headlines (risk-classified by Pioneer): "
+                        + "; ".join(f"[{t['label']}] {t['headline']}" for t in tags)
+                        + ". Weave the most relevant one into the risk assessment.")
         text = None
         if client is not None:
             try:
@@ -71,13 +78,14 @@ def analyze(candidates, top_n=None):
                     model="claude-sonnet-4-6",
                     max_tokens=400,
                     system=SYSTEM,
-                    messages=[{"role": "user", "content": _prompt(c)}],
+                    messages=[{"role": "user", "content": _prompt(c) + tag_note}],
                 )
                 text = msg.content[0].text.strip()
             except Exception as e:
                 print(f"  analyst: {c['ticker']} API call failed ({e}); using fallback")
         if not text:
             text = _fallback(c)
-        out.append({"ticker": c["ticker"], "analysis": text, "citations": citations})
-        print(f"  analyst: {c['ticker']} brief ready ({len(text)} chars)")
+        out.append({"ticker": c["ticker"], "analysis": text,
+                    "citations": citations, "news_tags": tags})
+        print(f"  analyst: {c['ticker']} brief ready ({len(text)} chars, {len(tags)} news tags)")
     return out
