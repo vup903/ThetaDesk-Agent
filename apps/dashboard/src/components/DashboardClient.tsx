@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity,
   ArrowUpDown,
@@ -693,11 +693,21 @@ function ConsumerBotPanel({
   onBriefUnlocked: (sheet: Brief) => void;
   unlocked: boolean;
 }) {
+  const terminalLogRef = useRef<HTMLDivElement | null>(null);
   const [lines, setLines] = useState<string[]>([
     "standby: watching cited.md action sheets",
     "risk limits loaded: max collateral $25,000"
   ]);
   const [running, setRunning] = useState(false);
+
+  useEffect(() => {
+    const log = terminalLogRef.current;
+    if (!log) {
+      return;
+    }
+
+    log.scrollTop = log.scrollHeight;
+  }, [lines]);
 
   const typeLine = async (line: string) => {
     setLines((current) => [...current, ""]);
@@ -762,7 +772,7 @@ function ConsumerBotPanel({
           </Button>
         ]}
       />
-      <div className="terminal-log" aria-live="polite">
+      <div className="terminal-log" aria-live="polite" ref={terminalLogRef}>
         {lines.map((line, index) => (
           <div className="terminal-line" key={`${line}-${index}`}>
             <span className="terminal-prompt">$</span>

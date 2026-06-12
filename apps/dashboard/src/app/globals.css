@@ -34,7 +34,8 @@ body {
 }
 
 body {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 button,
@@ -48,12 +49,13 @@ button {
 
 .dashboard-shell {
   width: 100%;
-  height: 100svh;
+  min-height: 100svh;
   max-width: 1920px;
   margin: 0 auto;
-  padding: 14px 16px;
+  padding: 14px 16px 18px;
   display: grid;
-  grid-template-rows: 62px 178px minmax(0, 1fr) 206px 38px;
+  grid-template-rows: auto auto auto auto auto;
+  align-content: start;
   gap: 12px;
   background:
     linear-gradient(rgba(94, 231, 135, 0.025) 1px, transparent 1px),
@@ -327,9 +329,9 @@ button {
 
 .content-grid {
   display: grid;
-  grid-template-columns: minmax(760px, 1fr) minmax(360px, 430px);
+  grid-template-columns: minmax(760px, 1fr) minmax(350px, 410px);
+  align-items: start;
   gap: 12px;
-  min-height: 0;
 }
 
 .candidate-card,
@@ -358,8 +360,7 @@ button {
 }
 
 .candidate-table-shell {
-  min-height: 0;
-  flex: 1;
+  flex: 0 0 auto;
   padding: 0 10px 10px;
   display: flex;
   flex-direction: column;
@@ -367,10 +368,11 @@ button {
 }
 
 .candidate-table-wrap {
-  min-height: 0;
-  flex: 1;
-  height: 100%;
-  overflow: hidden !important;
+  flex: 0 0 auto;
+  height: auto;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding-bottom: 2px;
 }
 
 .table-microbar {
@@ -401,7 +403,8 @@ button {
 
 .candidate-table th,
 .candidate-table td {
-  padding: 4px 10px !important;
+  padding: 4px 7px !important;
+  white-space: nowrap;
 }
 
 .candidate-table td {
@@ -435,6 +438,7 @@ button {
   text-transform: inherit;
   font-size: inherit;
   font-weight: inherit;
+  white-space: nowrap;
 }
 
 .sort-button:hover,
@@ -457,7 +461,7 @@ button {
 .ticker-cell {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
 }
 
@@ -509,7 +513,7 @@ button {
 .score-cell {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
 }
 
 .mini-bar,
@@ -522,12 +526,12 @@ button {
 }
 
 .mini-bar {
-  width: 68px;
+  width: 52px;
   height: 7px;
 }
 
 .score-track {
-  width: 76px;
+  width: 58px;
   height: 7px;
 }
 
@@ -559,8 +563,7 @@ button {
 }
 
 .brief-body {
-  min-height: 0;
-  flex: 1;
+  flex: 0 0 auto;
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -587,8 +590,7 @@ button {
 }
 
 .brief-tabs {
-  min-height: 0;
-  flex: 1;
+  flex: 0 0 auto;
   gap: 8px !important;
 }
 
@@ -598,26 +600,33 @@ button {
 
 .locked-region {
   position: relative;
-  min-height: 0;
-  flex: 1;
+  min-height: 220px;
+  flex: 0 0 auto;
 }
 
 .locked-content {
-  min-height: 0;
+  min-height: 220px;
   transition: filter 260ms ease, opacity 260ms ease;
 }
 
 .locked-content.is-locked {
+  max-height: 360px;
+  overflow: hidden;
   filter: blur(5px);
   pointer-events: none;
   user-select: none;
 }
 
+.locked-content.is-unlocked {
+  max-height: none;
+  overflow: visible;
+}
+
 .analysis-list {
   display: grid;
   gap: 8px;
-  max-height: 260px;
-  overflow: hidden;
+  max-height: none;
+  overflow: visible;
 }
 
 .analysis-item {
@@ -703,10 +712,12 @@ button {
 }
 
 .terminal-log {
-  height: 88px;
+  min-height: 88px;
+  max-height: 132px;
   margin: 0 12px 12px;
   padding: 10px 12px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: auto;
   border: 1px solid rgba(94, 231, 135, 0.22);
   border-radius: 8px;
   background: #020403;
@@ -742,6 +753,7 @@ button {
   justify-content: space-between;
   gap: 12px;
   min-width: 0;
+  padding-bottom: 2px;
 }
 
 .sponsor-strip,
@@ -806,11 +818,11 @@ button {
 
 @media (max-width: 1180px) {
   body {
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .dashboard-shell {
-    height: auto;
     min-height: 100svh;
     grid-template-rows: auto;
   }
