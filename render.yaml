@@ -36,4 +36,6 @@ services:
         value: https://thetadesk-api-jpll.onrender.com
 
 # Daily autonomous trigger runs in-process inside thetadesk-api
-# (scheduler thread, weekdays 13:45 UTC) — no separate cron service needed.
+# (scheduler thread, weekdays 13:45 UTC). DISABLED by default post-hackathon
+# so it won't spend Claude/Senso credits unattended — set SCHEDULER_ENABLED=1
+# in the thetadesk-api service env to re-arm it.

@@ -49,6 +49,10 @@ def _scheduler():
 
 @app.on_event("startup")
 def _start_scheduler():
+    # Disabled by default post-hackathon so the desk doesn't spend Claude/Senso
+    # credits unattended. Re-arm with SCHEDULER_ENABLED=1.
+    if not config.SCHEDULER_ENABLED:
+        return
     threading.Thread(target=_scheduler, daemon=True).start()
 
 # in-memory state of the current/last run (single-process demo server)

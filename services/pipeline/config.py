@@ -25,6 +25,10 @@ UNIVERSE = [t.strip() for t in os.getenv(
     "UNIVERSE", "AAPL,MSFT,NVDA,AMD,TSLA,GOOGL,AMZN,META,PLTR,SOFI"
 ).split(",") if t.strip()]
 
+# Autonomous daily scheduler: OFF by default (post-hackathon, avoids burning
+# Claude/Senso credits unattended). Set SCHEDULER_ENABLED=1 to re-arm it.
+SCHEDULER_ENABLED = os.getenv("SCHEDULER_ENABLED", "0").lower() in ("1", "true", "yes")
+
 # cost fuses — keep a public demo endpoint from burning API credits
 RUNS_PER_HOUR = int(os.getenv("RUNS_PER_HOUR", "6"))
 RUNS_PER_DAY = int(os.getenv("RUNS_PER_DAY", "20"))
